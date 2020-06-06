@@ -78,3 +78,23 @@ body {
   .account-heading {
     font-size: 2.5rem;
   }
+
+ /* .conatainer .row .col .card .card-img-top .domain_name {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(29, 106, 154, 0.72);
+    color: #fff;
+    visibility: hidden;
+    opacity: 0;
+  
+     transition effect. not necessary 
+    transition: opacity .2s, visibility .2s;
+  }
+  
+  .conatainer .row .col .card .card-img-top:hover .domain_name {
+    visibility: visible;
+    opacity: 1;
+  }*/

@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+      <div class="media">
+          <img class="rounded-circle account-img" src="{{ url_for('static', filename='profile_pics/'+domain.domain_image) }}">
+          <div class="media-body">
+            <h2 class="account-heading">{{ domain.domain_name }}</h2>
+            <p class="text-secondary">{{ domain.creator.username }}</p>
+            <form method="POST" action="{{ url_for('domains.follow', domain_id=domain.id, str=form.follow_button.label.text) }}">
+              {{ form.hidden_tag() }}
+              <div class="form-group">
+                  {{ form.follow_button(class="btn btn-outline-info")}}
+              </div>
+            </form>
+            <!-- Button trigger modal -->
+            <a data-toggle="modal" data-target="#exampleModalCenter" href="#">Followers</a>
+            {% if current_user == domain.creator %}
+                <a type="button"  href="{{ url_for('domains.update_domain',domain_id=domain.id) }}">Update Domain</a>
+            {% endif %}
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Followers</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    {% for follower in domain.domain_followers %}
+                      <div>
+                        <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/'+follower.image_file) }}">
+                        {{ follower.email }}
+                      </div>
+                    {% endfor %}
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+    <h1 class="mb-3">Posts in {{ domain.domain_name }} {{ posts.total }}</h1>
+    {% for post in posts.items %}
+        <article class="media content-section">
+            <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/'+post.author.image_file) }}">
+            <div class="media-body">
+                <div class = "article-metadata">
+                    <a class="mr-2" href="{{ url_for('users.user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
+                    <a class="mr-2" href="{{ url_for('domains.domain_profile', domain_name=post.domain.domain_name) }}">{{ post.domain.domain_name }}</a>
+                    <small class="text-muted">{{ post.date_posted.strftime('%y-%m-%d') }}</small>
+                </div>
+                <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a></h2>
+                <p class="article-content">{{ post.content }}</p>
+            </div>
+        </article>
+    {% endfor %}
+    {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+      {% if page_num %}
+        {% if posts.page == page_num %}
+          <a class="btn btn-info mb-4" href="{{ url_for('domains.domain_profile', domain_name = domain_name, page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+          <a class="btn btn-outline-info mb-4" href="{{ url_for('domains.domain_profile', domain_name = domain_name, page=page_num) }}">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+        ...
+      {% endif %}
+    {% endfor %}
+{% endblock content %}

@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="row row-cols-3">
+        {%for domain in lst %}
+            <div class="col">
+                <a href="{{ url_for('domains.domain_profile', domain_name=domain.domain_name)}}">
+                    <div class="card" style="width: 18rem;">
+                        <img src="{{ url_for('static', filename='domain_pics/'+domain.domain_image) }}" class="card-img-top img-fluid">
+                        <p class="mask flex-center rgba-red-strong">{{ domain.domain_name }}</p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

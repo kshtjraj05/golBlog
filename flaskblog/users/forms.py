@@ -14,12 +14,12 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign up')
 
-    def validate_field(self, username):
+    def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user:
             raise ValidationError('The username is already taken. Please choose a different username')
 
-    def validate_field(self, email):
+    def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('The email is already taken. Please choose a different username')
@@ -37,13 +37,13 @@ class UpdateAccountForm(FlaskForm):
     picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpeg', 'jpg', 'png'])])
 
 
-    def validate_field(self, username):
+    def validate_username(self, username):
         if username.data != current_user.username:
             user = User.query.filter_by(username=username.data).first()
             if user:
                 raise ValidationError('The username is already taken. Please choose a different username')
 
-    def validate_field(self, email):
+    def validate_email(self, email):
         if email.data != current_user.email:
             user = User.query.filter_by(username=email.data).first()
             if user:
@@ -62,3 +62,6 @@ class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Reset')
+
+class Follow(FlaskForm):
+    follow_button=SubmitField('Follow')

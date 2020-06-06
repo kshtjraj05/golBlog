@@ -1,6 +1,6 @@
 from flask import  current_app, render_template, url_for, flash, redirect, request, abort
-from flaskblog.users.forms import ResetPasswordForm, RequestResetForm,RegistrationForm, LogIn, UpdateAccountForm
-from flaskblog.models  import User, Post
+from flaskblog.users.forms import Follow, ResetPasswordForm, RequestResetForm,RegistrationForm, LogIn, UpdateAccountForm
+from flaskblog.models  import User, Post,followers
 from flaskblog import  db, bcrypt, mail
 from flask_login import login_user, current_user, logout_user, login_required
 import secrets, os
@@ -34,17 +34,17 @@ def register():
 @users.route("/login", methods = ['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     form = LogIn()
-    if form.validate_on_submit:
+    if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data) 
-            flash('You have been logged in!', 'success')
-            return redirect(url_for('main.home'))
+            login_user(user, remember=form.remember.data)
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('main.home'))
         else:
-            flash('Log in unsuccessful. Please check email and password', 'danger')
-    return render_template('login.html', title='LogIn', form =form)
+            flash('Login Unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html', title='Login', form=form)
 
 @users.route("/logout")
 def logout():
@@ -100,11 +100,25 @@ def reset_token(token):
     return render_template('reset_token.html', title='Reset Password', form =form )
 
 @users.route("/user/<string:username>")
-def user_posts(username):
+@login_required
+def user_profile(username):
+    follow_form = Follow()
+
     page=request.args.get('page',1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
+    if current_user.is_following(user):
+        follow_form.follow_button.label.text='Followed'
+
     posts=Post.query.filter_by(author=user)\
         .order_by(Post.date_posted.desc())\
         .paginate(page=page,per_page=5)
-    return render_template('user_posts.html',posts = posts, user=user, current_user=current_user)
+    return render_template('user_profile.html',posts = posts, user=user, current_user=current_user, follow_form=follow_form)
 
+@users.route("/user/<int:user_id>/follow", methods=['POST'])
+def follow(user_id):
+    user=User.query.get_or_404(user_id)
+    if request.args.get('str') == 'Follow':
+        current_user.follow(user)
+    else:
+        current_user.unfollow(user)
+    return redirect(url_for('users.user_profile', username=user.username))
