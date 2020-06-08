@@ -30,54 +30,44 @@ def scrape_medium(query):
     driver.get(f'https://medium.com/search?q={search_string}')
     lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
     match=False
-    while(match==False):
+    i=1
+    while(match==False and i<=2):
         lastCount = lenOfPage
         time.sleep(3)
         lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
         if lastCount==lenOfPage:
             match=True
-    #button = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.XPATH,'//*[@id="ctl00_ContentPlaceHolder1_btnmore"]')))
+        i+=1
     page_source = driver.page_source
     soup = bs.BeautifulSoup(page_source)
-    #print(soup)
+    user_link=[]
+    username=[]
+    for div in soup.find_all('div',class_='postMetaInline-authorLockup'):
+        for url in div.find_all('a'):
+            if url.get('data-action') == 'show-user-card' and url.get('data-action-source') != None:
+                username.append(url.get_text())
+                user_link.append(url.get('href'))
+    dates=[]
+    for date in soup.find_all('time'):
+        dates.append(date.get_text())
     link=[]
     post_title=[]
     for div in soup.find_all('div', class_="postArticle-content"):
-        print('Hey')
         for url in div.find_all('a'):
             link.append(url.get('href'))
         for title in div.find_all('div', class_='section-content'):
             post_title.append(title.get_text())
-    print(link)
-    print(post_title)
-lst=['kubernetes']
-scrape_medium(lst)
-'''while(True):
-        try:
-            button.click()
-            button = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.XPATH,'//*[@id="ctl00_ContentPlaceHolder1_btnmore"]')))		
-            page_source = driver.page_source
-        except:
-            break
-    driver.quit()
-    df = pd.DataFrame(columns=['Recipe_Name','Recipe_Link','Main_Ingredient','Cuisine','Course','Veg'])
 
-    soup = bs.BeautifulSoup(page_source)
-    base_url="https://www.sanjeevkapoor.com"
-    count=0
-    for div in soup.find_all('div', class_ = 'col-md-6 images-blog1'):
-        print(count)
-        count+=1
-        for url in div.find_all('a'):
-            obj=Row()
-            real_url=urljoin(base_url,url.get('href'))
-            print(real_url)
-            dic=obj.prepare_row(real_url)
-            dic['Recipe_Link']=base_url+real_url
-            x=dic['Recipe_Link'].rindex('/')
-            x+=1
-            y=dic['Recipe_Link'].rindex('.')
-            dic['Recipe_Name']=dic['Recipe_Link'][x:y]
-            df=df.append(dic, ignore_index=True)
-    df.to_excel('SK_scraped.xlsx')
-'''
+    i=0
+    lst=[]
+    dic={}
+    for i in range(len(username)):
+        dic['username']=username[i]
+        dic['user_link']=user_link[i]
+        dic['link']=link[i]
+        dic['title']=post_title[i]
+        dic['date']=dates[i]
+        lst.append(dic)
+        dic={}
+    return lst
+

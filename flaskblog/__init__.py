@@ -6,7 +6,8 @@ from flask_mail import Mail
 from flaskblog.config import Config
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-
+from elasticsearch import Elasticsearch
+from flask_babel import Babel
 db = SQLAlchemy()
 migrate=Migrate()
 
@@ -15,6 +16,7 @@ login_manager = LoginManager()
 login_manager.login_view='users.login'
 login_manager.login_message_category = 'info'
 mail= Mail()
+babel = Babel()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -24,7 +26,7 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
-    
+    babel.init_app(app)
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
 

@@ -24,6 +24,15 @@
               <div class="navbar-nav mr-auto">
                 <a class="nav-item nav-link" href="/">Home</a>
                 <a class="nav-item nav-link" href="{{ url_for('main.about') }}">About</a>
+                {% if g.search_form %}
+                  <form class="navbar-form navbar-left" method="get"
+                          action="{{ url_for('main.search') }}">
+                      <div class="form-group">
+                          {{ g.search_form.q(size=20, class='form-control',
+                              placeholder=g.search_form.q.label.text) }}
+                      </div>
+                  </form>
+                {% endif %}
               </div>
               <!-- Navbar Right Side -->
               <div class="navbar-nav">
@@ -33,6 +42,7 @@
                   <a class="nav-item nav-link" href="{{ url_for('posts.new_post') }}">New Post</a>
                   <a class="nav-item nav-link" href="{{ url_for('users.account') }}">Account</a>
                   <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
+                  
                 {% else %}
                   <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Login</a>
                   <a class="nav-item nav-link" href="{{ url_for('users.register') }}">Register</a>
