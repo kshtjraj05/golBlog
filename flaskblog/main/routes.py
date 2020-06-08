@@ -6,7 +6,7 @@ from flask_babel import get_locale
 import requests
 import json
 from datetime import datetime
-from flaskblog import scrape
+from flaskblog.scrape import scrape_medium
 main = Blueprint('main',__name__)
 
 
@@ -49,4 +49,4 @@ def search():
     #for post in stack_response['items']:
         #print(post['title'])
     return render_template('search.html', title='Search', posts=posts,
-                           next_url=next_url, prev_url=prev_url, stack_response=stack_response['items'])
+                           next_url=next_url, prev_url=prev_url, stack_response=stack_response['items'], medium_response=medium_response)

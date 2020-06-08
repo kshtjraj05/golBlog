@@ -6,7 +6,10 @@
           <a class="nav-link active" id="our_results" data-toggle="tab" href="#site_posts" role="tab" aria-controls="site_posts" aria-selected="true">Our results</a>
         </li>
         <li class="nav-item" role="presentation">
-          <a class="nav-link" id="other_website_results" data-toggle="tab" href="#other_site_posts" role="tab" aria-controls="other_site_posts" aria-selected="false">Other website results</a>
+          <a class="nav-link" id="stack_results" data-toggle="tab" href="#stack_posts" role="tab" aria-controls="stack_posts" aria-selected="false">Other website results</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="medium_results" data-toggle="tab" href="#medium_posts" role="tab" aria-controls="medium_posts" aria-selected="false">Other website results</a>
         </li>
     </ul>
     <div class="tab-content" id="myTabContent">
@@ -25,17 +28,33 @@
                 </article>
             {% endfor %}
         </div>
-        <div class="tab-pane fade" id="other_site_posts" role="tabpanel" aria-labelledby="other_website_results">
-            <div class="tab-pane fade show active" id="site_posts" role="tabpanel" aria-labelledby="our_results">
+        <div class="tab-pane fade" id="stack_posts" role="tabpanel" aria-labelledby="stack_results">
+            <div class="tab-pane fade show active" id="stack_posts" role="tabpanel" aria-labelledby="stack_results">
                 {% for post in stack_response %}
                     <article class="media content-section">
                         <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/default.jpeg') }}">
                         <div class="media-body">
                             <div class = "article-metadata">
-                                <a class="mr-2" href="{{ post['owner']['link'] }}">{{ post['owner']['display_name'] }}</a>
+                                <a class="mr-2" href="{{ post['owner']['link'] }}" target="_blank">{{ post['owner']['display_name'] }}</a>
                                 <small class="date text-muted">{{ post['creation_date'] }}</small>
                             </div>
-                            <h2><a class="article-title" href="{{ post['link'] }}">{{ post['title'] }}</a></h2>
+                            <h2><a class="article-title" href="{{ post['link'] }}" target="_blank">{{ post['title'] }}</a></h2>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="tab-pane fade" id="medium_posts" role="tabpanel" aria-labelledby="medium_results">
+            <div class="tab-pane fade show active" id="site_posts" role="tabpanel" aria-labelledby="medium_results">
+                {% for post in medium_response %}
+                    <article class="media content-section">
+                        <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/default.jpeg') }}">
+                        <div class="media-body">
+                            <div class = "article-metadata">
+                                <a class="mr-2" href="{{ post['user_link'] }}" target="_blank">{{ post['username'] }}</a>
+                                <small class="text-muted">{{ post['date'] }}</small>
+                            </div>
+                            <h2><a class="article-title" href="{{ post['link'] }}" target="_blank">{{ post['title'] }}</a></h2>
                         </div>
                     </article>
                 {% endfor %}
@@ -51,7 +70,6 @@
             console.log(date);
             date.toDateString();
             $(this).text(date);
-            console.log('Hey');
         });
     </script>
 {% endblock content %}
