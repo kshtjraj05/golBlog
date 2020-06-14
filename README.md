@@ -8,3 +8,4 @@ A blogging search engine delivering results from various sites using elasticsear
  5. It will take about an hour for the docker image to be created
  6. When the docker image is ready, run command: `docker images` to check if it is created or not
  7. To run image: `docker run --name golblog -p 8000:5000 --rm -e SECRET_KEY=<your secret key> -e SQLALCHEMY_DATABASE_URI=sqlite:///site.db -e EMAIL_PASS=<your email password> -e EMAIL_USERNAME=<your email username> golblog:latest`
+ 8. Browse: `localhost:8000`
