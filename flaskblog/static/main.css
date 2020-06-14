@@ -1,27 +1,15 @@
 body {
     background: #fafafa;
     color: #333333;
-    margin-top: 5rem;
+    padding-top: 60px;
   }
-  
+  @media (max-width: 979px) {
+    body {
+      padding-top: 0px;
+    }
+  }
   h1, h2, h3, h4, h5, h6 {
     color: #444444;
-  }
-  
-  .bg-steel {
-    background-color: #5f788a;
-  }
-  
-  .site-header .navbar-nav .nav-link {
-    color: #cbd5db;
-  }
-  
-  .site-header .navbar-nav .nav-link:hover {
-    color: #ffffff;
-  }
-  
-  .site-header .navbar-nav .nav-link.active {
-    font-weight: 500;
   }
   
   .content-section {
@@ -79,22 +67,83 @@ body {
     font-size: 2.5rem;
   }
 
- /* .conatainer .row .col .card .card-img-top .domain_name {
+  .comment-img {
+    height: 20px;
+    width : 20px;
+    margin-right:10px;
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+  .comment-form{
+    display: inline;
+  }
+  .vote {
+    display: inline-block;
+    overflow: hidden;
+    width: 40px;
+    height: 25px;
+    cursor: pointer;
+    background: url('http://i.stack.imgur.com/iqN2k.png');
+    background-position: 0 -21px;
+  } 
+  
+  .vote.on {
+    background-position: 0 2px;
+  }
+
+  .votd {
+    display: inline-block;
+    overflow: hidden;
+    width: 43px;
+    height: 27px;
+    cursor: pointer;
+    background: url('downvote.png');
+    background-position: 0 2px;
+  } 
+  
+  .votd.on {
+    background-position: 0 -25px;
+  }
+
+  .home-content{
+    width: inherit;
+    max-height: 400px;
+    overflow:hidden;
+  }
+
+
+  .domain {
+    position: relative;
+  }
+  
+  .domain-description-layer {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(29, 106, 154, 0.72);
+    background: rgba(36, 62, 206, 0.6);
     color: #fff;
     visibility: hidden;
     opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   
-     transition effect. not necessary 
+    /* transition effect. not necessary */
     transition: opacity .2s, visibility .2s;
   }
   
-  .conatainer .row .col .card .card-img-top:hover .domain_name {
+  .domain:hover .domain-description-layer {
     visibility: visible;
     opacity: 1;
-  }*/
+  }
+  
+  .domain-description {
+    transition: .2s;
+    transform: translateY(1em);
+  }
+  
+  .domain:hover .domain-description {
+    transform: translateY(0);
+  }

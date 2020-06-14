@@ -8,7 +8,7 @@ from flask import url_for, current_app, Blueprint
 
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
-    content = TextAreaField('Content', validators=[DataRequired()])
+    content = TextAreaField('Content')
     domain = SelectField('Domain', validators=[DataRequired()]) 
     submit = SubmitField('Post')
     

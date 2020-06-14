@@ -5,10 +5,13 @@
         {%for domain in lst %}
             <div class="col">
                 <a href="{{ url_for('domains.domain_profile', domain_name=domain.domain_name)}}">
-                    <div class="card" style="width: 18rem;">
-                        <img src="{{ url_for('static', filename='domain_pics/'+domain.domain_image) }}" class="card-img-top img-fluid">
-                        <p class="mask flex-center rgba-red-strong">{{ domain.domain_name }}</p>
+                    <div class="domain card" style="margin-top: 30px;">
+                        <img src="{{ url_for('static', filename='domain_pics/'+domain.domain_image) }}" class="domain-image card-img-top img-fluid">
+                        <div class="domain-description-layer">
+                            <p class="domain-description">{{ domain.domain_name }}</p>
+                        </div>
                     </div>
+                    
                 </a>
             </div>
         {% endfor %}

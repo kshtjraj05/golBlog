@@ -38,14 +38,14 @@
                 <div class="form-group">
                     {{ form.content.label(class="form-control-label")}}
                     {% if form.content.errors %}
-                        {{ form.content(id="summernote",class="form-control form-control-lg is-invalid") }}
+                        {{ form.content(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.content.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.content(class="form-control form-control-lg") }}
+                        {{ form.content(id="editor",class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
                 
@@ -92,11 +92,6 @@
         </div>
         </div>
     </div>
-    <script>
-        $(document).ready(function() {
-            $('#summernote').summernote();
-            });
-    </script>
 {% endblock content %}
 
 

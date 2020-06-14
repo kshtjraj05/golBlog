@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template,g, current_app
-from  flaskblog.models import Post
+from  flaskblog.models import Post, Upvote_association
 from flask_login import current_user, login_required
 from flaskblog.main.forms import SearchForm
 from flask_babel import get_locale
@@ -7,15 +7,27 @@ import requests
 import json
 from datetime import datetime
 from flaskblog.scrape import scrape_medium
+from flaskblog import db
+from sqlalchemy import func
+from flask_paginate import Pagination, get_page_parameter
 main = Blueprint('main',__name__)
 
 
 @main.route("/")
 @main.route("/home")
 def home():
-    page=request.args.get('page',1, type=int)
-    posts=Post.query.order_by(Post.date_posted.desc()).paginate(page=page,per_page=5)
-    return render_template('home.html', posts=posts, current_user=current_user)
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    latest_posts=Post.query.order_by(Post.date_posted.desc()).limit(6).all()
+    top_rated_posts=Post.query.outerjoin(Upvote_association).group_by(Post.id).order_by(func.count().desc()).all()
+    top_rated_posts.reverse()
+    
+    recommended_posts=[]
+    for post in top_rated_posts:
+        if current_user.is_following_domain(post.domain):
+            recommended_posts.append(post)
+        print(recommended_posts)
+    pagination = Pagination(page=page, total=len(recommended_posts), search=False, record_name='recommended_posts')
+    return render_template('home.html',pagination=pagination, latest_posts=latest_posts, current_user=current_user, top_rated_posts = top_rated_posts, recommended_posts=recommended_posts)
 
 @main.route("/about")
 def about():

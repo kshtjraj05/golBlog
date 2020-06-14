@@ -1,27 +1,34 @@
 {% extends "layout.html" %}
 {% block content %}
-    {% for post in posts.items %}
+    {% for post in recommended_posts %}
         <article class="media content-section">
             <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/'+post.author.image_file) }}">
             <div class="media-body">
-                <div class = "article-metadata">
-                    <a class="mr-2" href="{{ url_for('users.user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
-                    <a class="mr-2" href="{{ url_for('domains.domain_profile', domain_name=post.domain.domain_name) }}">{{ post.domain.domain_name }}</a>
-                    <small class="text-muted">{{ post.date_posted.strftime('%y-%m-%d') }}</small>
+              <div class = "article-metadata">
+                  <a class="mr-2" href="{{ url_for('users.user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
+                  <a class="mr-2" href="{{ url_for('domains.domain_profile', domain_name=post.domain.domain_name) }}">{{ post.domain.domain_name }}</a>
+                  <small class="text-muted">{{ post.date_posted.strftime('%y-%m-%d') }}</small>
+              </div>
+              <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a></h2>
+              <div class="article-metadata"></div>
+              <div class="home-content article-content">
+                <p>{{ post.content | safe }}</p>
+              </div>
+              <div><a href="{{ url_for('posts.post', post_id=post.id) }}">Read more...</a></div>
+              <div class="article-metadata"></div>
+              {% if current_user.is_authenticated %}
+                <div>
+                  <p>
+                    <span id="upvote"><span class="vote" style="cursor:unset;"></span> <span id ="upvote_count">{{ post.upvoters|length }}</span> </span>
+                    <span id="downvote"><span class="votd " style="cursor:unset;"></span> <span id ="downvote_count">{{ post.downvoters|length }}</span></span>
+                    &nbsp;<span id="comment"> <span><i class="far fa-comment"></i></span>  <span id ="comment|count">{{ post.comments|length }}</span></span>
+                  </p>
                 </div>
-                <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a></h2>
+              {% endif %}  
             </div>
         </article>
     {% endfor %}
-    {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-      {% if page_num %}
-        {% if posts.page == page_num %}
-          <a class="btn btn-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
-        {% else %}
-          <a class="btn btn-outline-info mb-4" href="{{ url_for('main.home', page=page_num) }}">{{ page_num }}</a>
-        {% endif %}
-      {% else %}
-        ...
-      {% endif %}
-    {% endfor %}
+    {{ pagination.links }}
+    <script src="http://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>   
+    
 {% endblock content %}

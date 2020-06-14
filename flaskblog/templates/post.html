@@ -7,20 +7,24 @@
                 <a class="mr-2" href="{{ url_for('users.user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
                 <a class="mr-2" href="{{ url_for('domains.domain_profile', domain_name=post.domain.domain_name) }}">{{ post.domain.domain_name }}</a>
                 <small class="text-muted">{{ post.date_posted.strftime('%y-%m-%d') }}</small>
+
+                {% if post.author == current_user %}
+                  <span class="dropdown" style="float: right; cursor: pointer;">
+                    <i class="fas fa-ellipsis-v" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <a class="dropdown-item" href="{{ url_for('posts.update_post', post_id=post.id) }}">Update</a>
+                      <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModal">Delete</a>
+                    </div>
+                  </span>
+                {% endif %} 
             </div>
             <h2 class="article-title">{{ post.title }}</a></h2>
-            <p class="article-content">{{ post.content }}</p>
-            {% if post.author == current_user %}
-                <div>
-                    <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('posts.update_post', post_id=post.id) }}">Update</a>
-                    <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
-                </div>
-            {% endif %}
+            <p class="article-content">{{ post.content | safe }}</p>
             {% if current_user.is_authenticated %}
               <div>
                 <p>
-                  <a id="upvote" href="#">Upvote</a>
-                  <a id="downvote" href="#">Downvote</a>
+                  <span id="upvote"><span class="vote"></span> <span id ="upvote_count">{{ post.upvoters|length }}</span> </span>
+                  <span id="downvote"><span class="votd"></span> <span id ="downvote_count">{{ post.downvoters|length }}</span></span>
                 </p>
               </div>
             {% endif %}
@@ -50,39 +54,45 @@
   <div id="comments_section">
     <p> Comments</p>
     {% for comment in post.comments %}
-      <div class="media">
-        <img src="{{ url_for('static', filename='profile_pics/'+comment.author.image_file) }}" class="rounded-circle article-img" >
-        <div class="media-body">
-          <h5 class="mt-0">{{ comment.author.username }}</h5>
-          {{ comment.content }}
+      <div class="card">
+        <div class="card-header">
+        </div>
+        <div class="card-body">
+          <blockquote class="blockquote mb-0">
+            <p>{{ comment.content }}</p>
+            <footer class="blockquote-footer"><img src="{{ url_for('static', filename='profile_pics/'+comment.author.image_file) }}" class="rounded-circle comment-img" >{{ comment.author.username }} said at <cite title="Source Title">{{ comment.date_posted}}</cite></footer>
+          </blockquote>
         </div>
       </div>
     {% endfor %}
   </div>
   <!--Write a comment-->
   {% if current_user.is_authenticated %}
-    <div class="media">
-      <img src="{{ url_for('static', filename='profile_pics/'+current_user.image_file) }}" class="rounded-circle article-img" >
-      <div class="media-body">
-        <h5 class="mt-0">{{ current_user.username }}</h5>
-        <div class="content-section">
+    <div class="card">
+      <div class="card-header">
+        
+      </div>
+      <div class="card-body">
+        <blockquote class="blockquote mb-0">
+          <img src="{{ url_for('static', filename='profile_pics/'+current_user.image_file) }}" class="rounded-circle comment-img" >
           <form id="comment" method="POST", action="">
-              {{ form.hidden_tag() }}
-              <fieldset class="form-group">
-                  <div class="form-group">
-                    {{ form.content(class="form-control form-control-lg", placeholder = "Write a comment ") }}
-                  </div>
-              </fieldset>
-              <div class="form-group">
-                  {{ form.submit(class="btn btn-outline-info")}}
-              </div>
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <div class="form-group">
+                  {{ form.content(class="form-control form-control-lg", placeholder = "Write a comment ") }}
+                </div>
+            </fieldset>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info")}}
+            </div>
           </form>
-        </div>
+        </blockquote>
       </div>
     </div>
   {% endif %}
   <script src="http://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
   <script>
+    
     $('#comment').on('submit', function(e){
       e.preventDefault();
       $.ajax({
@@ -94,36 +104,74 @@
         }
       });
     });
+
     $(document).ready(function(){
       $.ajax({
         url:"{{ url_for('posts.is_upvoted', post_id=post.id) }}",
         type: "GET",
         success:function(response){
-          $("#upvote").text(response.text);
+          if(response.text=="Upvoted")
+          {
+            $(".vote").toggleClass("on");
+          }
         }
       });
       $.ajax({
         url:"{{ url_for('posts.is_downvoted', post_id=post.id) }}",
         type: "GET",
         success:function(response){
-          $("#dowvote").text(response.text);
+          if(response.text=="Downvoted")
+          {
+            $(".votd").toggleClass("on");
+          }
         }
       });
     });
-  
+    
+    function is_upvoted(){
+      let x=$.ajax({
+        url:"{{ url_for('posts.is_upvoted', post_id=post.id) }}",
+        type: "GET",
+        async:false,
+        success:function(response){
+          return response;
+        }
+      }).responseJSON;
+      if(x.text==="Upvoted")
+        return true;
+      else
+        return false;
+    }
+
+    function is_downvoted(){
+      let x=$.ajax({
+        url:"{{ url_for('posts.is_downvoted', post_id=post.id) }}",
+        type: "GET",
+        async:false,
+        success:function(response){
+          return response;
+        }
+      }).responseJSON;
+      if(x.text==="Downvoted")
+        return true;
+      else
+        return false;
+    }
     
     $("#upvote").on('click',function(){
       event.preventDefault();
-      let x = $(this).text();
-      if(x === 'Upvote')
-      {  
-        console.log(x);
+      if(is_upvoted() ==  false)
+      {
+        if(is_downvoted()==true)
+          $(".votd").toggleClass("on");
+        console.log("1");  
         $.ajax({
           url:" {{ url_for('posts.upvote', post_id=post.id) }}",
           type: "POST",
           success: function(response){
-            $('#upvote').text('Upvoted');
-            $("#downvote").text('Downvote');
+            $(".vote").toggleClass("on");
+            $("#upvote_count").load("{{ url_for('posts.post', post_id=post.id)}}"+" #upvote_count")
+            $("#downvote_count").load("{{ url_for('posts.post', post_id=post.id)}}"+" #downvote_count")
           }
         });
       }
@@ -133,7 +181,9 @@
           url:" {{ url_for('posts.remove_upvote', post_id=post.id) }}",
           type: "POST",
           success: function(response){
-            $('#upvote').text('Upvote');
+            $(".vote").toggleClass("on");
+            $("#upvote_count").load("{{ url_for('posts.post', post_id=post.id)}}"+" #upvote_count")
+            $("#downvote_count").load("{{ url_for('posts.post', post_id=post.id)}}"+" #downvote_count")
           }
         });
       }
@@ -142,16 +192,19 @@
 
     $("#downvote").on('click',function(){
       event.preventDefault();
-      let x = $(this).text();
-      if(x === 'Downvote')
+      if(is_downvoted()==false)
       {  
-        console.log(x);
+        if(is_upvoted()==true)
+        {
+          $(".vote").toggleClass("on");
+        }
         $.ajax({
           url:" {{ url_for('posts.downvote', post_id=post.id) }}",
           type: "POST",
           success: function(response){
-            $('#downvote').text('Downvoted');
-            $("#upvote").text('Upvote');
+            $(".votd").toggleClass("on");
+            $("#downvote_count").load("{{ url_for('posts.post', post_id=post.id)}}"+" #downvote_count")
+            $("#upvote_count").load("{{ url_for('posts.post', post_id=post.id)}}"+" #upvote_count")
           }
         });
       }
@@ -161,7 +214,9 @@
           url:" {{ url_for('posts.remove_downvote', post_id=post.id) }}",
           type: "POST",
           success: function(response){
-            $('#downvote').text('Downvote');
+            $(".votd").toggleClass("on");
+            $("#downvote_count").load("{{ url_for('posts.post', post_id=post.id)}}"+" #downvote_count")
+            $("#upvote_count").load("{{ url_for('posts.post', post_id=post.id)}}"+" #upvote_count")
           }
         });
       }

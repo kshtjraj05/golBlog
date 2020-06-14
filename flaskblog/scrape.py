@@ -4,8 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 import bs4 as bs
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-import numpy as np
-import pandas as pd
+
 import urllib.request
 #from dem4 import Row
 from urllib.parse import urljoin

@@ -33,6 +33,7 @@ def new_post():
     return render_template('create_post.html',title='New Post', form = form, legend = 'New Post', domain_form=domain_form)
 
 @posts.route("/post/<int:post_id>", methods = ['GET', 'POST'])
+@login_required
 def post(post_id):
 
     post = Post.query.get_or_404(post_id)
@@ -74,6 +75,7 @@ def update_post(post_id):
         domain=Domain.query.filter_by(domain_name=domain_name).first_or_404()
         post.title = form.title.data
         post.content = form.content.data
+        post.domain=domain
         db.session.commit()
         flash('Post has been updated','success')
         return redirect(url_for('posts.post',post_id=post.id))
@@ -84,6 +86,7 @@ def update_post(post_id):
     return render_template('create_post.html',title='Update post', form = form, legend = 'Update Post', domain_form=domain_form)
 
 @posts.route('/posts/<int:post_id>/is_upvoted')
+@login_required
 def is_upvoted(post_id):
     x=Upvote_association.query.get((current_user.id, post_id))
     if x != None:
@@ -92,12 +95,13 @@ def is_upvoted(post_id):
         return jsonify({'text':'Upvote'})
     
 @posts.route('/posts/<int:post_id>/is_downvoted')
+@login_required
 def is_downvoted(post_id):
     x=Downvote_association.query.get((current_user.id, post_id))
     if x != None:
         return jsonify({'text':'Downvoted'})
     else:
-        return jsonify({'text':'Dowvote'})
+        return jsonify({'text':'Downvote'})
 
 @posts.route("/post/<int:post_id>/delete", methods = ['POST'])
 def delete_post(post_id):
