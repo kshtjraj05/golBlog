@@ -53,7 +53,7 @@
                   <div class="modal-body">
                     {% for domain in user.domains %}
                       <div>
-                        <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/'+domain.domain_image) }}">
+                        <img class="rounded-circle article-img" src="{{ url_for('static', filename='domain_pics/'+domain.domain_image) }}">
                         <a href="{{ url_for('domains.domain_profile', domain_name=domain.domain_name)}}">{{ domain.domain_name }}</a>
                       </div>
                     {% endfor %}
@@ -70,17 +70,32 @@
     </div>
     <h1 class="mb-3">Posts by {{ user.username }} {{ posts.total }}</h1>
     {% for post in posts.items %}
-        <article class="media content-section">
-            <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/'+post.author.image_file) }}">
-            <div class="media-body">
-                <div class = "article-metadata">
-                    <a class="mr-2" href="{{ url_for('users.user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
-                    <a class="mr-2" href="{{ url_for('domains.domain_profile', domain_name=post.domain.domain_name) }}">{{ post.domain.domain_name }}</a>
-                    <small class="text-muted">{{ post.date_posted.strftime('%y-%m-%d') }}</small>
-                </div>
-                <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a></h2>
+      <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/'+post.author.image_file) }}">
+        <div class="media-body">
+          <div class = "article-metadata">
+              <a class="mr-2" href="{{ url_for('users.user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
+              <a class="mr-2" href="{{ url_for('domains.domain_profile', domain_name=post.domain.domain_name) }}">{{ post.domain.domain_name }}</a>
+              <small class="text-muted">{{ post.date_posted.strftime('%y-%m-%d') }}</small>
+          </div>
+          <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a></h2>
+          <div class="article-metadata"></div>
+          <div class="home-content article-content">
+            <p>{{ post.content | safe }}</p>
+          </div>
+          <div><a href="{{ url_for('posts.post', post_id=post.id) }}">Read more...</a></div>
+          <div class="article-metadata"></div>
+          {% if current_user.is_authenticated %}
+            <div>
+              <p>
+                <span id="upvote"><span class="vote" style="cursor:unset;"></span> <span id ="upvote_count">{{ post.upvoters|length }}</span> </span>
+                <span id="downvote"><span class="votd " style="cursor:unset;"></span> <span id ="downvote_count">{{ post.downvoters|length }}</span></span>
+                &nbsp;<span id="comment"> <span><i class="far fa-comment"></i></span>  <span id ="comment|count">{{ post.comments|length }}</span></span>
+              </p>
             </div>
-        </article>
+          {% endif %}  
+        </div>
+      </article>
     {% endfor %}
     {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
       {% if page_num %}

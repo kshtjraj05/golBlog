@@ -1,16 +1,5 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>{{ title }}</h1>
-    <button>Clicky</button>
-    <div class="content1"> Hello </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            console.log('Hello');
-            $("button").click(function() {
-                console.log("Clicked");
-                $(".content1").toggleClass("active");
-            });
-        });
-    </script>
+    
 {% endblock content %}

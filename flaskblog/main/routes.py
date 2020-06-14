@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template,g, current_app
+from flask import Blueprint, request, render_template,g, current_app, url_for, render_template, redirect
 from  flaskblog.models import Post, Upvote_association
 from flask_login import current_user, login_required
 from flaskblog.main.forms import SearchForm
@@ -22,16 +22,21 @@ def home():
     top_rated_posts.reverse()
     
     recommended_posts=[]
-    for post in top_rated_posts:
-        if current_user.is_following_domain(post.domain):
-            recommended_posts.append(post)
-        print(recommended_posts)
-    pagination = Pagination(page=page, total=len(recommended_posts), search=False, record_name='recommended_posts')
-    return render_template('home.html',pagination=pagination, latest_posts=latest_posts, current_user=current_user, top_rated_posts = top_rated_posts, recommended_posts=recommended_posts)
-
+    if current_user.is_authenticated:
+        for post in top_rated_posts:
+            if current_user.is_following_domain(post.domain):
+                recommended_posts.append(post)
+        pagination = Pagination(page=page, total=len(recommended_posts), search=False, record_name='recommended_posts')
+        return render_template('home.html',pagination=pagination, latest_posts=latest_posts, current_user=current_user, top_rated_posts = top_rated_posts, recommended_posts=recommended_posts)
+    else:
+        recommended_posts=Post.query.order_by(Post.date_posted.desc()).all()
+        pagination = Pagination(page=page, total=len(recommended_posts), search=False, record_name='recommended_posts')
+        return render_template('home.html',pagination=pagination, latest_posts=latest_posts, current_user=current_user, top_rated_posts = top_rated_posts, recommended_posts=recommended_posts)
 @main.route("/about")
 def about():
-    return render_template('about.html', title = 'About')
+    latest_posts=Post.query.order_by(Post.date_posted.desc()).limit(6).all()
+    top_rated_posts=Post.query.outerjoin(Upvote_association).group_by(Post.id).order_by(func.count().desc()).limit(6).all()
+    return render_template('about.html', title = 'About', top_rated_posts=top_rated_posts, latest_posts=latest_posts)
 
 
 @main.before_app_request
@@ -43,6 +48,8 @@ def before_request():
 @main.route('/search')
 @login_required
 def search():
+    latest_posts=Post.query.order_by(Post.date_posted.desc()).limit(6).all()
+    top_rated_posts=Post.query.outerjoin(Upvote_association).group_by(Post.id).order_by(func.count().desc()).limit(6).all()
     if not g.search_form.validate():
         return redirect(url_for('main.home'))
     page = request.args.get('page', 1, type=int)
@@ -58,7 +65,5 @@ def search():
     payload ={ 'q':query_string , 'accepted':'true', 'closed':'true', 'migrated':'false',}
     stack_response = json.loads(requests.get(url, params=payload).text)
     medium_response = scrape_medium(query_string)
-    #for post in stack_response['items']:
-        #print(post['title'])
     return render_template('search.html', title='Search', posts=posts,
-                           next_url=next_url, prev_url=prev_url, stack_response=stack_response['items'], medium_response=medium_response)
+                           next_url=next_url, prev_url=prev_url, stack_response=stack_response['items'], medium_response=medium_response, top_rated_posts=top_rated_posts, latest_posts=latest_posts)

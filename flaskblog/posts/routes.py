@@ -7,6 +7,7 @@ from flaskblog.models import Post, Comment, Downvote_association, Upvote_associa
 from flaskblog.posts.forms import PostForm, CommentForm, UpvoteForm, DownvoteForm
 from flaskblog.domains.forms import DomainForm
 from flaskblog.domains.routes import get_domains
+from sqlalchemy import func
 posts = Blueprint('posts',__name__)
 
 
@@ -15,6 +16,8 @@ posts = Blueprint('posts',__name__)
 @posts.route("/post/new", methods = ['GET','POST'])
 @login_required
 def new_post():
+    latest_posts=Post.query.order_by(Post.date_posted.desc()).limit(6).all()
+    top_rated_posts=Post.query.outerjoin(Upvote_association).group_by(Post.id).order_by(func.count().desc()).limit(6).all()
     form = PostForm()
     domain_form =DomainForm()
     lst = get_domains()
@@ -30,22 +33,25 @@ def new_post():
         db.session.commit()
         flash('Your post has been created', 'success')
         return redirect(url_for('main.home'))
-    return render_template('create_post.html',title='New Post', form = form, legend = 'New Post', domain_form=domain_form)
+    return render_template('create_post.html',title='New Post', form = form, legend = 'New Post', domain_form=domain_form, top_rated_posts=top_rated_posts, latest_posts=latest_posts)
 
 @posts.route("/post/<int:post_id>", methods = ['GET', 'POST'])
 @login_required
 def post(post_id):
-
+    latest_posts=Post.query.order_by(Post.date_posted.desc()).limit(6).all()
+    top_rated_posts=Post.query.outerjoin(Upvote_association).group_by(Post.id).order_by(func.count().desc()).limit(6).all()
     post = Post.query.get_or_404(post_id)
     comments = Comment.query.filter_by(post=post)
-
+    print('Hey')
+    for posts in top_rated_posts:
+        print(posts)
     form = CommentForm()
     if form.validate_on_submit():
         comment=Comment(content=form.content.data, author=current_user, post=post)
         db.session.add(comment)
         db.session.commit()
         return Response(status=200)
-    return render_template('post.html',title=post.title,post=post, form= form, comments=comments)
+    return render_template('post.html',title=post.title,post=post, form= form, comments=comments, top_rated_posts=top_rated_posts, latest_posts=latest_posts)
 
 @posts.route("/post/<int:post_id>/add_comment", methods = ['POST'])
 def comment(post_id):
@@ -60,6 +66,8 @@ def comment(post_id):
 
 @posts.route("/post/<int:post_id>/update", methods = ['GET','POST'])
 def update_post(post_id):
+    latest_posts=Post.query.order_by(Post.date_posted.desc()).limit(6).all()
+    top_rated_posts=Post.query.outerjoin(Upvote_association).group_by(Post.id).order_by(func.count().desc()).limit(6).all()
     post = Post.query.get_or_404(post_id)
     if(post.author != current_user):
         abort(403)
@@ -83,7 +91,7 @@ def update_post(post_id):
         form.title.data=post.title
         form.content.data=post.content
         form.submit.data='Update'
-    return render_template('create_post.html',title='Update post', form = form, legend = 'Update Post', domain_form=domain_form)
+    return render_template('create_post.html',title='Update post', form = form, legend = 'Update Post', domain_form=domain_form, top_rated_posts=top_rated_posts, latest_posts=latest_posts)
 
 @posts.route('/posts/<int:post_id>/is_upvoted')
 @login_required
