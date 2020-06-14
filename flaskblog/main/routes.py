@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template,g, current_app, url_for, render_template, redirect
+from flask import Blueprint, request, render_template,g, current_app, url_for, redirect
 from  flaskblog.models import Post, Upvote_association
 from flask_login import current_user, login_required
 from flaskblog.main.forms import SearchForm
