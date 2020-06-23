@@ -5,6 +5,7 @@ from flaskblog.main.forms import SearchForm
 from flask_babel import get_locale
 import requests
 import json
+from json import Response
 from datetime import datetime
 from flaskblog.scrape import scrape_medium
 from flaskblog import db
@@ -67,3 +68,12 @@ def search():
     medium_response = scrape_medium(query_string)
     return render_template('search.html', title='Search', posts=posts,
                            next_url=next_url, prev_url=prev_url, stack_response=stack_response['items'], medium_response=medium_response, top_rated_posts=top_rated_posts, latest_posts=latest_posts)
+
+
+@main.route("/toggle_tour_view", methods=['POST'])
+def toggle_tour_view():
+    current_user.can_view_tour=False
+    db.session.commit()
+    print(current_user.can_view_tour)
+    status_code = Response(status=200)
+    return status_code
